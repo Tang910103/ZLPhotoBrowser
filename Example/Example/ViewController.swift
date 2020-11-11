@@ -52,6 +52,13 @@ class ViewController: UIViewController {
             make.left.equalTo(configBtn.snp.right).offset(30)
         }
         
+        let xinchao = createBtn(" 新潮 ", #selector(xinchaoClick))
+        self.view.addSubview(xinchao)
+        xinchao.snp.makeConstraints { (make) in
+            make.top.equalTo(configBtn.snp.top)
+            make.left.equalTo(configBtn_cn.snp.right).offset(30)
+        }
+        
         let previewSelectBtn = createBtn("Preview selection", #selector(previewSelectPhoto))
         self.view.addSubview(previewSelectBtn)
         previewSelectBtn.snp.makeConstraints { (make) in
@@ -134,9 +141,52 @@ class ViewController: UIViewController {
         ac.showPreview(animate: true, sender: self)
     }
     
+    @objc func xinchaoClick() {
+        let config = ZLPhotoConfiguration.default()
+        config.style = .embedAlbumList
+        config.maxSelectCount = 3
+        config.showSelectedPhotoPreview = false
+        config.navViewBlurEffect = nil
+        config.statusBarStyle = .default
+        config.showSelectedIndex = false
+        config.sortAscending = false
+        config.showInvalidMask = false
+        config.languageType = .chineseSimplified
+        config.allowSelectOriginal = false
+        config.allowEditImage = false
+        config.customImageNames = ["zl_downArrow", "zl_btn_selected", "zl_btn_unselected", "zl_albumSelect", "zl_btn_circle", "zl_navBack"];
+        config.bottomToolViewBlurEffect = nil
+        
+        let themeColorDeploy = config.themeColorDeploy
+        themeColorDeploy.navEmbedTitleViewBgColor = .clear
+        themeColorDeploy.previewBgColor = .white
+        themeColorDeploy.previewBtnBgColor = .black
+        themeColorDeploy.navBarColor = .white
+        themeColorDeploy.navTitleColor = .black
+        themeColorDeploy.thumbnailBgColor = UIColor(red: 0.97, green: 0.97, blue: 0.97, alpha: 1)
+        themeColorDeploy.previewBgColor = themeColorDeploy.thumbnailBgColor
+        themeColorDeploy.cameraCellBgColor = UIColor.lightGray.withAlphaComponent(0.6)
+        themeColorDeploy.albumListBgColor = .white
+        themeColorDeploy.albumListTitleColor = .black
+        themeColorDeploy.bottomToolViewBgColor = .white
+        themeColorDeploy.bottomToolViewBtnNormalTitleColor = .black
+        themeColorDeploy.bottomToolViewBtnDisableTitleColor = UIColor(red: 0.71, green: 0.71, blue: 0.71, alpha: 1)
+        themeColorDeploy.doneBtnNormalBgColor = UIColor(red: 0.93, green: 0.28, blue: 0.27, alpha: 1)
+        themeColorDeploy.doneBtnDisableBgColor = UIColor(red: 0.77, green: 0.77, blue: 0.77, alpha: 1)
+        themeColorDeploy.doneBtnDisableTitleColor = .white
+
+        let ac = ZLPhotoPreviewSheet(selectedAssets: self.selectedAssets)
+        ac.selectImageBlock = { [weak self] (images, assets, isOriginal) in
+            self?.selectedImages = images
+            self?.selectedAssets = assets
+            self?.collectionView.reloadData()
+            debugPrint("\(images)   \(assets)   \(isOriginal)")
+        }
+        ac.showPhotoLibrary(sender: self)
+    }
+    
     @objc func librarySelectPhoto() {
-//        ZLPhotoConfiguration.default().editImageClipRatios = [.custom, .wh1x1, .wh3x4, .wh16x9, ZLImageClipRatio(title: "2 : 1", whRatio: 2 / 1)]
-//        ZLPhotoConfiguration.default().filters = [.normal, .process, ZLFilter(name: "custom", applier: ZLCustomFilter.hazeRemovalFilter)]
+        
         let ac = ZLPhotoPreviewSheet(selectedAssets: self.takeSelectedAssetsSwitch.isOn ? self.selectedAssets : [])
         ac.selectImageBlock = { [weak self] (images, assets, isOriginal) in
             self?.selectedImages = images

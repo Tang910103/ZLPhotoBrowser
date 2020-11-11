@@ -340,7 +340,7 @@ public class ZLCustomCamera: UIViewController, CAAnimationDelegate {
         self.doneBtn.titleLabel?.font = ZLLayout.bottomToolTitleFont
         self.doneBtn.setTitle(localLanguageTextValue(.done), for: .normal)
         self.doneBtn.setTitleColor(.bottomToolViewBtnNormalTitleColor, for: .normal)
-        self.doneBtn.backgroundColor = .bottomToolViewBtnNormalBgColor
+        self.doneBtn.backgroundColor = .doneBtnNormalBgColor
         self.doneBtn.addTarget(self, action: #selector(doneBtnClick), for: .touchUpInside)
         self.doneBtn.isHidden = true
         self.doneBtn.layer.masksToBounds = true
@@ -894,7 +894,7 @@ extension ZLCustomCamera: AVCaptureFileOutputRecordingDelegate {
         // 重置焦距
         self.setVideoZoomFactor(1)
         if duration < Double(ZLPhotoConfiguration.default().minRecordDuration) {
-            showAlertView(String(format: localLanguageTextValue(.minRecordTimeTips), ZLPhotoConfiguration.default().minRecordDuration), self)
+            showToastView(String(format: localLanguageTextValue(.minRecordTimeTips), ZLPhotoConfiguration.default().minRecordDuration), self)
             self.resetSubViewStatus()
             self.recordUrls.forEach { try? FileManager.default.removeItem(at: $0) }
             self.recordUrls.removeAll()

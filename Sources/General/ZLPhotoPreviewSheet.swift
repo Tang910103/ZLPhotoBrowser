@@ -410,7 +410,7 @@ public class ZLPhotoPreviewSheet: UIView {
                 picker.videoMaximumDuration = TimeInterval(config.maxRecordDuration)
                 self.sender?.showDetailViewController(picker, sender: nil)
             } else {
-                showAlertView(localLanguageTextValue(.cameraUnavailable), self.sender)
+                showToastView(localLanguageTextValue(.cameraUnavailable), self.sender)
             }
         }
     }
@@ -512,7 +512,7 @@ public class ZLPhotoPreviewSheet: UIView {
         var timeout = false
         hud.timeoutBlock = { [weak self] in
             timeout = true
-            showAlertView(localLanguageTextValue(.timeout), viewController ?? self?.sender)
+            showToastView(localLanguageTextValue(.timeout), viewController ?? self?.sender)
             self?.fetchImageQueue.cancelAllOperations()
         }
         
@@ -614,7 +614,7 @@ public class ZLPhotoPreviewSheet: UIView {
                         self?.requestSelectPhoto()
                     }
                 } else {
-                    showAlertView(localLanguageTextValue(.imageLoadFailed), self?.sender)
+                    showToastView(localLanguageTextValue(.imageLoadFailed), self?.sender)
                 }
                 hud.hide()
             }
@@ -628,7 +628,7 @@ public class ZLPhotoPreviewSheet: UIView {
         
         hud.show(timeout: 15)
         hud.timeoutBlock = { [weak self] in
-            showAlertView(localLanguageTextValue(.timeout), self?.sender)
+            showToastView(localLanguageTextValue(.timeout), self?.sender)
             if let _ = requestAvAssetID {
                 PHImageManager.default().cancelImageRequest(requestAvAssetID!)
             }
@@ -658,7 +658,7 @@ public class ZLPhotoPreviewSheet: UIView {
             if let _ = avAsset {
                 inner_showEditVideoVC(avAsset!)
             } else {
-                showAlertView(localLanguageTextValue(.timeout), self?.sender)
+                showToastView(localLanguageTextValue(.timeout), self?.sender)
             }
         }
     }

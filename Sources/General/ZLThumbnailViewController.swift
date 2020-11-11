@@ -499,28 +499,27 @@ class ZLThumbnailViewController: UIViewController {
     
     func resetBottomToolBtnStatus() {
         let nav = self.navigationController as! ZLImageNavController
+        let doneTitle = localLanguageTextValue(.done) + " " + String(nav.arrSelectedModels.count) + "/" + String(ZLPhotoConfiguration.default().maxSelectCount)
         if nav.arrSelectedModels.count > 0 {
             self.previewBtn.isEnabled = true
             self.doneBtn.isEnabled = true
-            let doneTitle = localLanguageTextValue(.done) + "(" + String(nav.arrSelectedModels.count) + ")"
             self.doneBtn.setTitle(doneTitle, for: .normal)
-            self.doneBtn.backgroundColor = .bottomToolViewBtnNormalBgColor
+            self.doneBtn.backgroundColor = .doneBtnNormalBgColor
+            self.doneBtn.setTitleColor(.doneBtnNormalTitleColor, for: .normal)
         } else {
             self.previewBtn.isEnabled = false
             self.doneBtn.isEnabled = false
-            self.doneBtn.setTitle(localLanguageTextValue(.done), for: .normal)
-            self.doneBtn.backgroundColor = .bottomToolViewBtnDisableBgColor
+            self.doneBtn.setTitle(doneTitle, for: .normal)
+            self.doneBtn.backgroundColor = .doneBtnDisableBgColor
+            self.doneBtn.setTitleColor(.doneBtnDisableTitleColor, for: .disabled)
         }
         self.originalBtn.isSelected = nav.isSelectedOriginal
         self.refreshDoneBtnFrame()
     }
     
     func refreshDoneBtnFrame() {
-        let selCount = (self.navigationController as? ZLImageNavController)?.arrSelectedModels.count ?? 0
-        var doneTitle = localLanguageTextValue(.done)
-        if selCount > 0 {
-            doneTitle += "(" + String(selCount) + ")"
-        }
+        let doneTitle = self.doneBtn.title(for: .normal) ?? localLanguageTextValue(.done)
+        
         let doneBtnW = doneTitle.boundingRect(font: ZLLayout.bottomToolTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 30)).width + 20
         self.doneBtn.frame = CGRect(x: self.bottomView.bounds.width-doneBtnW-15, y: 7, width: doneBtnW, height: ZLLayout.bottomToolBtnH)
     }
@@ -560,7 +559,7 @@ class ZLThumbnailViewController: UIViewController {
                 picker.videoMaximumDuration = TimeInterval(config.maxRecordDuration)
                 self.showDetailViewController(picker, sender: nil)
             } else {
-                showAlertView(localLanguageTextValue(.cameraUnavailable), self)
+                showToastView(localLanguageTextValue(.cameraUnavailable), self)
             }
         }
     }
@@ -645,7 +644,7 @@ class ZLThumbnailViewController: UIViewController {
                         nav?.selectImageBlock?()
                     }
                 } else {
-                    showAlertView(localLanguageTextValue(.imageLoadFailed), self)
+                    showToastView(localLanguageTextValue(.imageLoadFailed), self)
                 }
                 hud.hide()
             }
@@ -660,7 +659,7 @@ class ZLThumbnailViewController: UIViewController {
         
         hud.show(timeout: 15)
         hud.timeoutBlock = { [weak self] in
-            showAlertView(localLanguageTextValue(.timeout), self)
+            showToastView(localLanguageTextValue(.timeout), self)
             if let _ = requestAvAssetID {
                 PHImageManager.default().cancelImageRequest(requestAvAssetID!)
             }
@@ -690,7 +689,7 @@ class ZLThumbnailViewController: UIViewController {
             if let _ = avAsset {
                 inner_showEditVideoVC(avAsset!)
             } else {
-                showAlertView(localLanguageTextValue(.timeout), self)
+                showToastView(localLanguageTextValue(.timeout), self)
             }
         }
     }
@@ -699,6 +698,10 @@ class ZLThumbnailViewController: UIViewController {
 
 
 extension ZLThumbnailViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: ZLLayout.thumbCollectionViewLineSpacing, left: ZLLayout.thumbCollectionViewItemSpacing, bottom: ZLLayout.thumbCollectionViewLineSpacing, right: ZLLayout.thumbCollectionViewItemSpacing)
+    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return ZLLayout.thumbCollectionViewItemSpacing
@@ -714,7 +717,7 @@ extension ZLThumbnailViewController: UICollectionViewDataSource, UICollectionVie
         if UIApplication.shared.statusBarOrientation.isLandscape {
             columnCount += 2
         }
-        let totalW = collectionView.bounds.width - (columnCount - 1) * ZLLayout.thumbCollectionViewItemSpacing
+        let totalW = collectionView.bounds.width - (columnCount + 1) * ZLLayout.thumbCollectionViewItemSpacing
         let singleW = totalW / columnCount
         return CGSize(width: singleW, height: singleW)
     }
@@ -1038,7 +1041,7 @@ class ZLEmbedAlbumListNavView: UIView {
     
     static let titleViewH: CGFloat = 32
     
-    static let arrowH: CGFloat = 20
+    static let arrowH: CGFloat = 10
     
     var title: String {
         didSet {
@@ -1080,7 +1083,7 @@ class ZLEmbedAlbumListNavView: UIView {
         }
         
         self.refreshTitleViewFrame()
-        let cancelBtnW = localLanguageTextValue(.previewCancel).boundingRect(font: ZLLayout.navTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 44)).width
+        let cancelBtnW = localLanguageTextValue(.previewCancel).boundingRect(font: ZLLayout.navCancelBtnFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 44)).width
         self.cancelBtn.frame = CGRect(x: insets.left+20, y: insets.top, width: cancelBtnW, height: 44)
     }
     
@@ -1130,7 +1133,7 @@ class ZLEmbedAlbumListNavView: UIView {
         self.titleBgControl.addSubview(self.arrow)
         
         self.cancelBtn = UIButton(type: .custom)
-        self.cancelBtn.titleLabel?.font = ZLLayout.navTitleFont
+        self.cancelBtn.titleLabel?.font = ZLLayout.navCancelBtnFont
         self.cancelBtn.setTitle(localLanguageTextValue(.previewCancel), for: .normal)
         self.cancelBtn.setTitleColor(.navTitleColor, for: .normal)
         self.cancelBtn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
@@ -1200,10 +1203,10 @@ class ZLExternalAlbumListNavView: UIView {
         
         self.navBlurView?.frame = self.bounds
         
-        self.backBtn.frame = CGRect(x: insets.left, y: insets.top, width: 60, height: 44)
+        self.backBtn.frame = CGRect(x: insets.left + 15, y: insets.top, width: 60, height: 44)
         let albumTitleW = min(self.bounds.width / 2, self.title.boundingRect(font: ZLLayout.navTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 44)).width)
         self.albumTitleLabel.frame = CGRect(x: (self.frame.width-albumTitleW)/2, y: insets.top, width: albumTitleW, height: 44)
-        let cancelBtnW = localLanguageTextValue(.previewCancel).boundingRect(font: ZLLayout.navTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 44)).width + 40
+        let cancelBtnW = localLanguageTextValue(.previewCancel).boundingRect(font: ZLLayout.navCancelBtnFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 44)).width + 40
         self.cancelBtn.frame = CGRect(x: self.frame.width-insets.right-cancelBtnW, y: insets.top, width: cancelBtnW, height: 44)
     }
     
@@ -1217,6 +1220,8 @@ class ZLExternalAlbumListNavView: UIView {
         
         self.backBtn = UIButton(type: .custom)
         self.backBtn.setImage(getImage("zl_navBack"), for: .normal)
+        self.backBtn.setTitle(localLanguageTextValue(.back), for: .normal)
+        self.backBtn.setTitleColor(.navTitleColor, for: .normal)
         self.backBtn.imageEdgeInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: 0)
         self.backBtn.addTarget(self, action: #selector(backBtnClick), for: .touchUpInside)
         self.addSubview(self.backBtn)
@@ -1229,7 +1234,7 @@ class ZLExternalAlbumListNavView: UIView {
         self.addSubview(self.albumTitleLabel)
         
         self.cancelBtn = UIButton(type: .custom)
-        self.cancelBtn.titleLabel?.font = ZLLayout.navTitleFont
+        self.cancelBtn.titleLabel?.font = ZLLayout.navCancelBtnFont
         self.cancelBtn.setTitle(localLanguageTextValue(.previewCancel), for: .normal)
         self.cancelBtn.setTitleColor(.navTitleColor, for: .normal)
         self.cancelBtn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)

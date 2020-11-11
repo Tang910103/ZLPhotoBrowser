@@ -238,7 +238,7 @@ public class ZLEditVideoViewController: UIViewController {
         self.doneBtn.setTitleColor(.bottomToolViewBtnNormalTitleColor, for: .normal)
         self.doneBtn.titleLabel?.font = ZLLayout.bottomToolTitleFont
         self.doneBtn.addTarget(self, action: #selector(doneBtnClick), for: .touchUpInside)
-        self.doneBtn.backgroundColor = .bottomToolViewBtnNormalBgColor
+        self.doneBtn.backgroundColor = .doneBtnNormalBgColor
         self.doneBtn.layer.masksToBounds = true
         self.doneBtn.layer.cornerRadius = ZLLayout.bottomToolBtnCornerRadius
         self.view.addSubview(self.doneBtn)
@@ -255,12 +255,12 @@ public class ZLEditVideoViewController: UIViewController {
         let d = CGFloat(self.interval) * self.clipRect().width / ZLEditVideoViewController.frameImageSize.width
         if Second(round(d)) < ZLPhotoConfiguration.default().minSelectVideoDuration {
             let message = String(format: localLanguageTextValue(.shorterThanMaxVideoDuration), ZLPhotoConfiguration.default().minSelectVideoDuration)
-            showAlertView(message, self)
+            showToastView(message, self)
             return
         }
         if Second(round(d)) > ZLPhotoConfiguration.default().maxSelectVideoDuration {
             let message = String(format: localLanguageTextValue(.longerThanMaxVideoDuration), ZLPhotoConfiguration.default().maxSelectVideoDuration)
-            showAlertView(message, self)
+            showToastView(message, self)
             return
         }
         let hud = ZLProgressHUD(style: ZLPhotoConfiguration.default().hudStyle)

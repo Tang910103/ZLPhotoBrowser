@@ -55,6 +55,8 @@ class ZLPhotoPreviewController: UIViewController {
     
     var indexLabel: UILabel!
     
+    var titleLabel: UILabel!
+    
     var bottomView: UIView!
     
     var bottomBlurView: UIVisualEffectView?
@@ -146,9 +148,10 @@ class ZLPhotoPreviewController: UIViewController {
         self.navView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: navH)
         self.navBlurView?.frame = self.navView.bounds
         
-        self.backBtn.frame = CGRect(x: insets.left, y: insets.top, width: 60, height: 44)
+        self.backBtn.frame = CGRect(x: insets.left + 15, y: insets.top, width: 60, height: 44)
         self.selectBtn.frame = CGRect(x: self.view.frame.width - 40 - insets.right, y: insets.top + (44 - 25) / 2, width: 25, height: 25)
         self.indexLabel.frame = self.selectBtn.frame
+        self.titleLabel.frame = CGRect(x: (self.view.frame.width - 80)/2, y: insets.top, width: 80, height: 44)
         
         self.refreshBottomViewFrame()
         
@@ -200,17 +203,14 @@ class ZLPhotoPreviewController: UIViewController {
         let w = originalTitle.boundingRect(font: ZLLayout.bottomToolTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 30)).width + 30
         self.originalBtn.frame = CGRect(x: (self.bottomView.bounds.width-w)/2-5, y: btnY, width: w, height: btnH)
         
-        let selCount = (self.navigationController as? ZLImageNavController)?.arrSelectedModels.count ?? 0
-        var doneTitle = localLanguageTextValue(.done)
-        if selCount > 0 {
-            doneTitle += "(" + String(selCount) + ")"
-        }
+        let doneTitle = self.doneBtn.title(for: .normal) ?? localLanguageTextValue(.done)
+
         let doneBtnW = doneTitle.boundingRect(font: ZLLayout.bottomToolTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 30)).width + 20
         self.doneBtn.frame = CGRect(x: self.bottomView.bounds.width-doneBtnW-15, y: btnY, width: doneBtnW, height: btnH)
     }
     
     func setupUI() {
-        self.view.backgroundColor = .black
+        self.view.backgroundColor = .previewBgColor
         self.automaticallyAdjustsScrollViewInsets = false
         
         let config = ZLPhotoConfiguration.default()
@@ -226,6 +226,8 @@ class ZLPhotoPreviewController: UIViewController {
         
         self.backBtn = UIButton(type: .custom)
         self.backBtn.setImage(getImage("zl_navBack"), for: .normal)
+        self.backBtn.setTitle(localLanguageTextValue(.back), for: .normal)
+        self.backBtn.setTitleColor(.navTitleColor, for: .normal)
         self.backBtn.imageEdgeInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: 0)
         self.backBtn.addTarget(self, action: #selector(backBtnClick), for: .touchUpInside)
         self.navView.addSubview(self.backBtn)
@@ -246,6 +248,12 @@ class ZLPhotoPreviewController: UIViewController {
         self.indexLabel.layer.masksToBounds = true
         self.indexLabel.isHidden = true
         self.navView.addSubview(self.indexLabel)
+        
+        self.titleLabel = UILabel()
+        self.titleLabel.textColor = ZLPhotoConfiguration.default().themeColorDeploy.navTitleColor
+        self.titleLabel.font = ZLLayout.navTitleFont
+        self.titleLabel.textAlignment = .center
+        self.navView.addSubview(self.titleLabel)
         
         // collection view
         let layout = UICollectionViewFlowLayout()
@@ -309,7 +317,7 @@ class ZLPhotoPreviewController: UIViewController {
         self.bottomView.addSubview(self.originalBtn)
         
         self.doneBtn = createBtn(localLanguageTextValue(.done), #selector(doneBtnClick))
-        self.doneBtn.backgroundColor = .bottomToolViewBtnNormalBgColor
+        self.doneBtn.backgroundColor = .doneBtnNormalBgColor
         self.doneBtn.layer.masksToBounds = true
         self.doneBtn.layer.cornerRadius = ZLLayout.bottomToolBtnCornerRadius
         self.bottomView.addSubview(self.doneBtn)
@@ -386,11 +394,18 @@ class ZLPhotoPreviewController: UIViewController {
             return
         }
         let selCount = nav.arrSelectedModels.count
-        var doneTitle = localLanguageTextValue(.done)
-        if selCount > 0 {
-            doneTitle += "(" + String(selCount) + ")"
-        }
+        
+        let doneTitle = localLanguageTextValue(.done) + " " + String(selCount) + "/" + String(ZLPhotoConfiguration.default().maxSelectCount)
+
         self.doneBtn.setTitle(doneTitle, for: .normal)
+        
+        if selCount > 0 {
+            self.doneBtn.backgroundColor = .doneBtnNormalBgColor
+            self.doneBtn.setTitleColor(.doneBtnNormalTitleColor, for: .normal)
+        } else {
+            self.doneBtn.backgroundColor = .doneBtnDisableBgColor
+            self.doneBtn.setTitleColor(.doneBtnDisableTitleColor, for: .disabled)
+        }
         
         self.selPhotoPreview?.isHidden = selCount == 0
         self.refreshBottomViewFrame()
@@ -414,6 +429,8 @@ class ZLPhotoPreviewController: UIViewController {
     func resetIndexLabelStatus(animate: Bool) {
         guard ZLPhotoConfiguration.default().showSelectedIndex else {
             self.indexLabel.isHidden = true
+            self.titleLabel.text = String(self.currentIndex + 1) + " / " + String(self.arrDataSources.count)
+
             return
         }
         let nav = self.navigationController as! ZLImageNavController
@@ -470,7 +487,7 @@ class ZLPhotoPreviewController: UIViewController {
                     if let image = image {
                         self?.showEditImageVC(image: image)
                     } else {
-                        showAlertView(localLanguageTextValue(.imageLoadFailed), self)
+                        showToastView(localLanguageTextValue(.imageLoadFailed), self)
                     }
                     hud.hide()
                 }
@@ -479,7 +496,7 @@ class ZLPhotoPreviewController: UIViewController {
             var requestAvAssetID: PHImageRequestID?
             hud.show(timeout: 15)
             hud.timeoutBlock = { [weak self] in
-                showAlertView(localLanguageTextValue(.timeout), self)
+                showToastView(localLanguageTextValue(.timeout), self)
                 if let _ = requestAvAssetID {
                     PHImageManager.default().cancelImageRequest(requestAvAssetID!)
                 }
@@ -490,7 +507,7 @@ class ZLPhotoPreviewController: UIViewController {
                 if let _ = avAsset {
                     self?.showEditVideoVC(avAsset: avAsset!)
                 } else {
-                    showAlertView(localLanguageTextValue(.timeout), self)
+                    showToastView(localLanguageTextValue(.timeout), self)
                 }
             }
         }
@@ -974,7 +991,7 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.layer.borderColor = UIColor.bottomToolViewBtnNormalBgColor.cgColor
+        self.layer.borderColor = UIColor.doneBtnNormalBgColor.cgColor
         
         self.imageView = UIImageView()
         self.imageView.contentMode = .scaleAspectFill

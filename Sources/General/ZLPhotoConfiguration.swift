@@ -428,11 +428,17 @@ public class ZLPhotoThemeColorDeploy: NSObject {
     /// The disable state title color of bottom tool view buttons.
     @objc public var bottomToolViewBtnDisableTitleColor = zlRGB(168, 168, 168)
     
-    /// The normal state background color of bottom tool view buttons.
-    @objc public var bottomToolViewBtnNormalBgColor = zlRGB(80, 169, 56)
+    /// The normal state background color of done button.
+    @objc public var doneBtnNormalBgColor = zlRGB(80, 169, 56)
     
-    /// The disable state background color of bottom tool view buttons.
-    @objc public var bottomToolViewBtnDisableBgColor = zlRGB(50, 50, 50)
+    /// The disable state background color of done button.
+    @objc public var doneBtnDisableBgColor = zlRGB(50, 50, 50)
+    
+    /// The normal state title color of done button.
+    @objc public var doneBtnNormalTitleColor = UIColor.white
+    
+    /// The disable state title color of done button.
+    @objc public var doneBtnDisableTitleColor = zlRGB(168, 168, 168)
     
     /// With iOS14 limited authority, a color for select more photos at the bottom of the thumbnail interface.
     @objc public var selectMorePhotoWhenAuthIsLismitedTitleColor = UIColor.white

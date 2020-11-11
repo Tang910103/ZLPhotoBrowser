@@ -30,19 +30,21 @@ let ZLMaxImageWidth: CGFloat = 600
 
 struct ZLLayout {
     
-    static let navTitleFont = getFont(17)
+    static let navTitleFont = UIFont.boldSystemFont(ofSize: 18)
+    
+    static let navCancelBtnFont = getFont(17)
     
     static let bottomToolViewH: CGFloat = 55
     
     static let bottomToolBtnH: CGFloat = 34
     
-    static let bottomToolTitleFont = getFont(17)
+    static let bottomToolTitleFont = getFont(14)
     
-    static let bottomToolBtnCornerRadius: CGFloat = 5
+    static let bottomToolBtnCornerRadius: CGFloat = 4
     
-    static let thumbCollectionViewItemSpacing: CGFloat = 2
+    static let thumbCollectionViewItemSpacing: CGFloat = 8
     
-    static let thumbCollectionViewLineSpacing: CGFloat = 2
+    static let thumbCollectionViewLineSpacing: CGFloat = 8
     
 }
 
@@ -138,6 +140,50 @@ func getSpringAnimation() -> CAKeyframeAnimation {
     return animate
 }
 
+func showToastView(_ message: String, _ sender: UIViewController?) {
+    let alert = UIViewController()
+    alert.modalPresentationStyle = .overCurrentContext
+    alert.view.backgroundColor = UIColor.clear
+
+    let msg: UILabel = {
+        var f = CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width - 40, height: 40)
+        let msg = UILabel(frame: f)
+        msg.text = message
+        msg.font = getFont(13)
+        msg.numberOfLines = 0
+        msg.textColor = .white
+        msg.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+        msg.textAlignment = .center
+        
+        let doneBtnH = message.boundingRect(font: msg.font, limitSize: CGSize(width: f.width, height: CGFloat.greatestFiniteMagnitude)).height
+        if doneBtnH <= f.height {
+            
+            let doneBtnW = message.boundingRect(font: msg.font, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: 18)).width + 40
+            if doneBtnW < f.width {
+                f.size.width = max(18, doneBtnW)
+            }
+        } else {
+            f.size.height = doneBtnH
+        }
+        
+        msg.frame = CGRect(x: (UIScreen.main.bounds.width - f.width) * 0.5, y: (UIScreen.main.bounds.height - f.height) * 0.5, width: f.width, height: f.height)
+        msg.layer.masksToBounds = true
+        msg.layer.cornerRadius = 4
+        
+        return msg
+    }()
+    alert.view.addSubview(msg)
+    
+    if deviceIsiPad() {
+        alert.popoverPresentationController?.sourceView = sender?.view
+    }
+    (sender ?? UIApplication.shared.keyWindow?.rootViewController)?.present(alert, animated: false, completion: nil)
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        alert.dismiss(animated: false, completion: nil)
+    }
+}
+
 func showAlertView(_ message: String, _ sender: UIViewController?) {
     let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
     let action = UIAlertAction(title: localLanguageTextValue(.ok), style: .default, handler: nil)
@@ -156,7 +202,7 @@ func canAddModel(_ model: ZLPhotoModel, currentSelectCount: Int, sender: UIViewC
     if currentSelectCount >= ZLPhotoConfiguration.default().maxSelectCount {
         if showAlert {
             let message = String(format: localLanguageTextValue(.exceededMaxSelectCount), ZLPhotoConfiguration.default().maxSelectCount)
-            showAlertView(message, sender)
+            showToastView(message, sender)
         }
         return false
     }
@@ -169,14 +215,14 @@ func canAddModel(_ model: ZLPhotoModel, currentSelectCount: Int, sender: UIViewC
         if model.second > ZLPhotoConfiguration.default().maxSelectVideoDuration {
             if showAlert {
                 let message = String(format: localLanguageTextValue(.longerThanMaxVideoDuration), ZLPhotoConfiguration.default().maxSelectVideoDuration)
-                showAlertView(message, sender)
+                showToastView(message, sender)
             }
             return false
         }
         if model.second < ZLPhotoConfiguration.default().minSelectVideoDuration {
             if showAlert {
                 let message = String(format: localLanguageTextValue(.shorterThanMaxVideoDuration), ZLPhotoConfiguration.default().minSelectVideoDuration)
-                showAlertView(message, sender)
+                showToastView(message, sender)
             }
             return false
         }

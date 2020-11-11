@@ -103,14 +103,24 @@ extension UIColor {
         ZLPhotoConfiguration.default().themeColorDeploy.bottomToolViewBtnDisableTitleColor
     }
     
-    /// 底部工具栏按钮 可交互 状态背景颜色
-    class var bottomToolViewBtnNormalBgColor: UIColor {
-        ZLPhotoConfiguration.default().themeColorDeploy.bottomToolViewBtnNormalBgColor
+    /// 完成按钮 可交互 状态背景颜色
+    class var doneBtnNormalBgColor: UIColor {
+        ZLPhotoConfiguration.default().themeColorDeploy.doneBtnNormalBgColor
     }
     
-    /// 底部工具栏按钮 不可交互 状态背景颜色
-    class var bottomToolViewBtnDisableBgColor: UIColor {
-        ZLPhotoConfiguration.default().themeColorDeploy.bottomToolViewBtnDisableBgColor
+    /// 完成按钮 不可交互 状态背景颜色
+    class var doneBtnDisableBgColor: UIColor {
+        ZLPhotoConfiguration.default().themeColorDeploy.doneBtnDisableBgColor
+    }
+    
+    /// 完成按钮 可交互 字体颜色
+    class var doneBtnNormalTitleColor: UIColor {
+        ZLPhotoConfiguration.default().themeColorDeploy.doneBtnNormalTitleColor
+    }
+    
+    /// 完成按钮 不可交互 字体颜色
+    class var doneBtnDisableTitleColor: UIColor {
+        ZLPhotoConfiguration.default().themeColorDeploy.doneBtnDisableTitleColor
     }
     
     /// iOS14 limited 权限时候，小图界面下方显示 选择更多图片 标题颜色

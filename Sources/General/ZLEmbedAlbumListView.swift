@@ -28,7 +28,7 @@ import UIKit
 
 class ZLEmbedAlbumListView: UIView {
 
-    static let rowH: CGFloat = 60
+    static let rowH: CGFloat = 84
     
     var selectedAlbum: ZLAlbumListModel
     
@@ -145,7 +145,7 @@ class ZLEmbedAlbumListView: UIView {
         newFrame.origin.y -= newFrame.height
         
         if newFrame != self.tableBgView.frame {
-            let path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: newFrame.width, height: newFrame.height), byRoundingCorners: [.bottomLeft, .bottomRight], cornerRadii: CGSize(width: 8, height: 8))
+            let path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: newFrame.width, height: newFrame.height), byRoundingCorners: [.bottomLeft, .bottomRight], cornerRadii: CGSize(width: 0, height: 0))
             self.tableBgView.layer.mask = nil
             let maskLayer = CAShapeLayer()
             maskLayer.path = path.cgPath
