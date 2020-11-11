@@ -129,7 +129,6 @@ class ViewController: UIViewController {
     }
     
     @objc func previewSelectPhoto() {
-//        ZLPhotoConfiguration.default().editImageClipRatios = [.custom, .wh1x1, .wh3x4, .wh16x9, ZLImageClipRatio(title: "2 : 1", whRatio: 2 / 1)]
         let ac = ZLPhotoPreviewSheet(selectedAssets: self.takeSelectedAssetsSwitch.isOn ? self.selectedAssets : [])
         ac.selectImageBlock = { [weak self] (images, assets, isOriginal) in
             self?.selectedImages = images
@@ -137,6 +136,12 @@ class ViewController: UIViewController {
             self?.isOriginal = isOriginal
             self?.collectionView.reloadData()
             debugPrint("\(images)   \(assets)   \(isOriginal)")
+        }
+        ac.cancelBlock = {
+            debugPrint("cancel select")
+        }
+        ac.selectImageRequestErrorBlock = { (errorAssets, errorIndexs) in
+            debugPrint("fetch error assets: \(errorAssets), error indexs: \(errorIndexs)")
         }
         ac.showPreview(animate: true, sender: self)
     }
@@ -194,6 +199,12 @@ class ViewController: UIViewController {
             self?.collectionView.reloadData()
             debugPrint("\(images)   \(assets)   \(isOriginal)")
         }
+        ac.cancelBlock = {
+            debugPrint("cancel select")
+        }
+        ac.selectImageRequestErrorBlock = { (errorAssets, errorIndexs) in
+            debugPrint("fetch error assets: \(errorAssets), error indexs: \(errorIndexs)")
+        }
         ac.showPhotoLibrary(sender: self)
     }
     
@@ -221,6 +232,7 @@ class ViewController: UIViewController {
         
         let videoSuffixs = ["mp4", "mov", "avi", "rmvb", "rm", "flv", "3gp", "wmv", "vob", "dat", "m4v", "f4v", "mkv"] // and more suffixs
         let vc = ZLImagePreviewController(datas: datas, index: 0, showSelectBtn: true) { (url) -> ZLURLType in
+            // Just for demo.
             if url.absoluteString == netVideoUrlString {
                 return .video
             }

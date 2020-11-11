@@ -1,8 +1,8 @@
 //
-//  ZLPhotoBrowser.swift
+//  Int+ZLPhotoBrowser.swift
 //  ZLPhotoBrowser
 //
-//  Created by long on 2020/9/2.
+//  Created by ruby109 on 2020/11/3.
 //
 //  Copyright (c) 2020 Long Zhang <longitachi@163.com>
 //
@@ -24,4 +24,10 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
-let version = "4.0.9"
+import Foundation
+
+extension Int {
+    init(_ bool:Bool) {
+        self = bool ? 1 : 0
+    }
+}
